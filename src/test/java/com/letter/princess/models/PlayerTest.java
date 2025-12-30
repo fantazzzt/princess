@@ -17,7 +17,7 @@ class PlayerTest {
 
     @BeforeEach
     void setUp() {
-        deck = new TestDeck(List.of(new Card(Card.Rank.PRIEST)));
+        deck = new TestDeck(List.of(new Card(Role.PRIEST)));
         player = new Player("Alice");
 
         hand = new Hand();
@@ -35,7 +35,7 @@ class PlayerTest {
 
     @Test
     void playerDrawsCard_addsCardToHand() {
-        Card card = new Card(Card.Rank.GUARD);
+        Card card = new Card(Role.GUARD);
         deck.setNextCard(card);
 
         Card drawnCard = player.playerDrawsCard(deck);
@@ -47,7 +47,7 @@ class PlayerTest {
 
     @Test
     void playerPicksCardToPlay_removesCardFromHand() throws IllegalAccessException {
-        Card card = new Card(Card.Rank.PRINCE);
+        Card card = new Card(Role.PRINCE);
         hand.getCardsInHand().add(card);
 
         Card playedCard = player.playerPicksCardToPlay(card);
@@ -59,8 +59,8 @@ class PlayerTest {
 
     @Test
     void playerPicksCardToPlay_throwsExceptionIfCardNotInHand() {
-        Card cardInHand = new Card(Card.Rank.KING);
-        Card cardNotInHand = new Card(Card.Rank.PRINCESS);
+        Card cardInHand = new Card(Role.KING);
+        Card cardNotInHand = new Card(Role.PRINCESS);
 
         hand.getCardsInHand().add(cardInHand);
 
@@ -82,7 +82,7 @@ class PlayerTest {
     static class TestDeck extends Deck {
         private Card nextCard;
 
-        public TestDeck(Collection<Card> deck) {
+        public TestDeck(List<Card> deck) {
             super(deck);
         }
 

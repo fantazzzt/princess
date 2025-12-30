@@ -1,47 +1,29 @@
 package com.letter.princess.models;
 
+/**
+ * Represents a Card that can be played.
+ * Cards have a role and can be compared to other cards.
+ * Cards are immutable once created.
+ */
 public class Card implements Comparable<Card> {
-    private final Rank rank;
+    private final Role role;
 
-    public Card(Rank rank) {
-        this.rank = rank;
+    public Card(Role role) {
+        this.role = role;
     }
 
-    public Rank getRank() {
-        return this.rank;
+    public Role getRole() {
+        return this.role;
     }
 
     @Override
     public String toString() {
-        return this.rank.toString();
+        return this.role.toString();
     }
 
     @Override
     public int compareTo(Card other) {
-        return this.rank.compareTo(other.rank);
+        return this.role.compareTo(other.role);
     }
 
-
-    public enum Rank {
-        SPY(0),
-        GUARD(1),
-        PRIEST(2),
-        BARON(3),
-        HANDMAID(4),
-        PRINCE(5),
-        CHANCELLOR(6),
-        KING(7),
-        COUNTESS(8),
-        PRINCESS(9);
-
-        private final int value;
-
-        Rank(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 }
