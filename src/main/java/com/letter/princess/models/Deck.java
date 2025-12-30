@@ -3,11 +3,11 @@ package com.letter.princess.models;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Deck{
+public class Deck {
 
     private final Collection<Card> deck;
 
-    public static Deck newDeck(){
+    public static Deck newDeck() {
         ArrayList<Card> myDeck = new ArrayList<>();
         return new Deck(myDeck);
     }
@@ -16,18 +16,18 @@ public class Deck{
         this.deck = deck;
     }
 
-    public Card draw(){
+    public Card draw() {
         return null;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return deck.isEmpty();
     }
 
-    public void play(){
+    public void play() {
     }
 
-    public void shuffle(){
+    public void shuffle() {
     }
 
 }
