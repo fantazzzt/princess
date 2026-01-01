@@ -1,19 +1,18 @@
 package com.letter.princess.models;
 
+import lombok.Getter;
+
 /**
  * Represents a Card that can be played.
  * Cards have a role and can be compared to other cards.
  * Cards are immutable once created.
  */
+@Getter
 public class Card implements Comparable<Card> {
     private final Role role;
 
     public Card(Role role) {
         this.role = role;
-    }
-
-    public Role getRole() {
-        return this.role;
     }
 
     @Override

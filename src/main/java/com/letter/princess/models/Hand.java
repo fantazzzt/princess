@@ -1,22 +1,38 @@
 package com.letter.princess.models;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class Hand {
-    private Collection<Card> currentHand;
+    private final Collection<Card> currentHand;
 
+    /**
+     * Create a new, empty hand
+     */
+    public Hand() {
+        this.currentHand = new ArrayList<>();
+    }
 
+    /**
+     * Get the cards in the current hand
+     * @return collection of cards in hand (can be safely modified)
+     */
     public Collection<Card> getCardsInHand() {
-        return currentHand;
+        return new ArrayList<>(currentHand);
     }
 
-    public void setCardsInHand(Collection<Card> currentHand) {
-        this.currentHand = currentHand;
+    /**
+     * Add card to the current hand
+     * @param card Card to add
+     */
+    public void addCard(Card card) {
+        currentHand.add(card);
     }
 
-    public Card removeCardFromHand(Card card) throws IllegalAccessException {
+    public Card removeCard(Card card) {
         if (!currentHand.contains(card)) {
-            throw new IllegalAccessException("You cannot play that card because it is not in the player's hand!");
+            throw new IllegalArgumentException("You cannot play that card " +
+                    "because it is not in the player's hand!");
         }
         currentHand.remove(card);
         return card;

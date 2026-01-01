@@ -3,96 +3,71 @@ package com.letter.princess.models;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PlayerTest {
+public class PlayerTest {
 
     private Player player;
-    private TestDeck deck;
-    private Hand hand;
 
     @BeforeEach
-    void setUp() {
-        deck = new TestDeck(List.of(new Card(Role.PRIEST)));
+    public void setUp() {
         player = new Player("Alice");
-
-        hand = new Hand();
-        hand.setCardsInHand(new ArrayList<>());
-
-        player.setCurrentHand(hand);
     }
 
     @Test
-    void constructor_initializesDefaultsCorrectly() {
+    public void testInitializesDefaultsCorrectly() {
         assertEquals("Alice", player.getName());
-        assertEquals(0, player.getToken());
+        assertEquals(0, player.getNumTokens());
         assertFalse(player.isImmune());
     }
 
     @Test
-    void playerDrawsCard_addsCardToHand() {
+    public void testAddToken() {
+        player.addToken();
+        assertEquals(1, player.getNumTokens());
+        player.addToken();
+        assertEquals(2, player.getNumTokens());
+    }
+
+    @Test
+    public void testAddCardToHand() {
         Card card = new Card(Role.GUARD);
-        deck.setNextCard(card);
 
-        Card drawnCard = player.playerDrawsCard(deck);
-
-        assertEquals(card, drawnCard);
-        assertEquals(1, hand.getCardsInHand().size());
-        assertTrue(hand.getCardsInHand().contains(card));
+        player.addCardToHand(card);
+        Hand hand = player.getHand();
+        Collection<Card> currCards = hand.getCardsInHand();
+        assertEquals(1, currCards.size());
+        assertTrue(currCards.contains(card));
     }
 
     @Test
-    void playerPicksCardToPlay_removesCardFromHand() throws IllegalAccessException {
+    public void testRemoveCardFromHand() throws IllegalAccessException {
         Card card = new Card(Role.PRINCE);
-        hand.getCardsInHand().add(card);
-
-        Card playedCard = player.playerPicksCardToPlay(card);
-
-        assertEquals(card, playedCard);
-        assertFalse(hand.getCardsInHand().contains(card));
-        assertEquals(0, hand.getCardsInHand().size());
+        player.addCardToHand(card);
+        Card removedCard = player.removeCardFromHand(card);
+        assertEquals(card, removedCard);
+        assertFalse(player.getHand().getCardsInHand().contains(card));
+        assertEquals(0, player.getHand().getCardsInHand().size());
     }
 
     @Test
-    void playerPicksCardToPlay_throwsExceptionIfCardNotInHand() {
+    public void testRemoveCardFromHand_throwsExceptionIfCardNotInHand() {
         Card cardInHand = new Card(Role.KING);
         Card cardNotInHand = new Card(Role.PRINCESS);
 
-        hand.getCardsInHand().add(cardInHand);
+        player.addCardToHand(cardInHand);
 
-        IllegalAccessException exception = assertThrows(
-                IllegalAccessException.class,
-                () -> player.playerPicksCardToPlay(cardNotInHand)
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> player.removeCardFromHand(cardNotInHand)
         );
 
         assertEquals(
                 "You cannot play that card because it is not in the player's hand!",
                 exception.getMessage()
         );
-    }
-
-    /**
-     * Test stub for Deck
-     * Remove once Deck is fully implemented
-     */
-    static class TestDeck extends Deck {
-        private Card nextCard;
-
-        public TestDeck(List<Card> deck) {
-            super(deck);
-        }
-
-        void setNextCard(Card card) {
-            this.nextCard = card;
-        }
-
-        @Override
-        public Card draw() {
-            return nextCard;
-        }
     }
 }
