@@ -21,25 +21,6 @@ public class Game {
     // TODO: add support for 2-player game (3 discarded cards, faceup)
     private int currentRound;
 
-    private static final int NUM_TOKENS_WIN = 5;
-
-    /**
-     * Game factory
-     * @param playerNames List of players in order they'll be playing
-     * @return newly-initialised game of Princess
-     */
-    public Game initializeGame(List<String> playerNames) {
-        Deck newDeck = Deck.newDeck();
-        List<Player> players = new ArrayList<>();
-        for (String name : playerNames) {
-            Player newPlayer = new Player(name);
-            newPlayer.addCardToHand(newDeck.draw());
-            players.add(newPlayer);
-        }
-        Card discardedCard = deck.draw();
-        return new Game(players, NUM_TOKENS_WIN, newDeck, discardedCard, 1);
-    }
-
     // TODO: implement actions
     /*
      getGameState(player) -> shows current state of the world from POV of player
