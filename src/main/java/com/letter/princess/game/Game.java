@@ -4,6 +4,7 @@ import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +15,14 @@ import java.util.List;
 @AllArgsConstructor
 public class Game {
 
+    @Getter // TODO: probably shouldn't be a getter, need a defensive copy
     private final List<Player> players;
+    @Getter
     private final int numTokensToWin;
     private final Deck deck;
     private final Card discardedCard;
     // TODO: add support for 2-player game (3 discarded cards, faceup)
+    @Getter
     private int currentRound;
 
     // TODO: implement actions

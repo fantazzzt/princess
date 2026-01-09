@@ -3,6 +3,7 @@ package com.letter.princess.game;
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
+import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class GameBuilder {
     private static final int MIN_NUM_PLAYERS = 2;
     private static final int MAX_NUM_PLAYERS = 6;
 
-    private List<String> playerNames;
+    private final List<String> playerNames;
 
     private GameBuilder() {
         this.playerNames = new ArrayList<>();
@@ -27,7 +28,7 @@ public class GameBuilder {
         return playerNames.size() >= MAX_NUM_PLAYERS;
     }
 
-    public GameBuilder addPlayer(String playerName) {
+    public GameBuilder addPlayer(@NonNull String playerName) {
         if (isGameFull()) {
             throw new IllegalStateException("Cannot have more than " + MAX_NUM_PLAYERS + " players in game");
         }
@@ -35,9 +36,13 @@ public class GameBuilder {
         return this;
     }
 
-    public GameBuilder removePlayer(String playerName) {
+    public GameBuilder removePlayer(@NonNull String playerName) {
         playerNames.remove(playerName);
         return this;
+    }
+
+    public List<String> getPlayerNames() {
+        return new ArrayList<>(playerNames);
     }
 
     /**
