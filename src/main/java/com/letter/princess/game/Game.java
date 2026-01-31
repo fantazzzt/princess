@@ -2,11 +2,12 @@ package com.letter.princess.game;
 
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
+import com.letter.princess.models.Hand;
 import com.letter.princess.models.Player;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,16 +39,28 @@ public class Game {
          selected as targets
      ...
      */
+    // TODO: fix how it gets currentPlayer and otherPlayer views
+    // TODO: add tests
+    public GameView gameView(Player player) {
+        return new GameView(currentRound, numTokensToWin, getPlayerView(player, player), Collections.emptyList());
+    }
 
-    /*
-    // TODO: where does this loop go?
-     while (!gameOver) -> check if anyone reached numTokensToWin
-     while (!roundOver) -> check if deck is empty or num players remaining = 1
-     move to next player
-     draw card from deck
-     player picks card
-     implement card rules
-     check if any players are out
-     if end of round
-     */
+    // TODO: add tests, also better name to check player equality
+    private PlayerView getPlayerView(Player viewingPlayer, Player targetPlayer) {
+        if (viewingPlayer.getName().equals(targetPlayer.getName())) {
+            Hand viewingHand = viewingPlayer.getHand();
+            return new PlayerView(viewingPlayer.getName(),
+                    viewingHand.getNumCards(),
+                    viewingHand.getCardsInHand(),
+                    viewingPlayer.getDiscardedCards(),
+                    viewingPlayer.getNumTokens());
+        } else {
+            return new PlayerView(targetPlayer.getName(),
+                    targetPlayer.getHand().getNumCards(),
+                    null,
+                    targetPlayer.getDiscardedCards(),
+                    targetPlayer.getNumTokens());
+        }
+    }
+
 }

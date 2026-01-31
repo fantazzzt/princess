@@ -25,4 +25,16 @@ public class Card implements Comparable<Card> {
         return this.role.compareTo(other.role);
     }
 
+    @Override
+    public int hashCode() {
+        return this.role.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Card other)) {
+            return false;
+        }
+        return this.role.equals(other.role);
+    }
 }

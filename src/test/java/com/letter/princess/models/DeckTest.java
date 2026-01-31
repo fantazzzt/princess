@@ -23,9 +23,14 @@ public class DeckTest {
     }
 
     @Test
-    public void testNewDeckIsEmpty() {
+    public void testNewDeckHasDefaultCards() {
         deck = Deck.newDeck();
-        assertTrue(deck.isEmpty());
+        assertEquals(3, deck.getSize());
+        List<Card> expectedCards = List.of(new Card(Role.PRIEST), new Card(Role.PRINCESS), new Card(Role.PRIEST));
+        List<Card> deckCards = deck.getAllCards();
+        for (int i = 0; i < expectedCards.size(); i++) {
+            assertEquals(expectedCards.get(i), deckCards.get(i));
+        }
     }
 
     @Test

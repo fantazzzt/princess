@@ -3,9 +3,13 @@ package com.letter.princess.models;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a player in a game of Princess
  */
+// TODO: change player identification to be by Id (not String name) to hide info
 public class Player {
     @Getter
     private final String name;
@@ -28,13 +32,17 @@ public class Player {
     @Setter
     private boolean isImmune;
 
-    // TODO: player's list of played cards - belongs to Player or in Game?
+    /**
+     * Player's discarded hands in order (first = oldest discarded)
+     */
+    private final List<Card> discardedCards;
 
     public Player(String name) {
         this.name = name;
         this.numTokens = 0;
         this.setHand(new Hand());
         this.setImmune(false);
+        this.discardedCards = new ArrayList<>();
     }
 
     /**
@@ -58,5 +66,10 @@ public class Player {
      */
     public Card removeCardFromHand(Card card) {
         return hand.removeCard(card);
+    }
+
+    // TODO: add test
+    public List<Card> getDiscardedCards() {
+        return new ArrayList<>(discardedCards);
     }
 }
