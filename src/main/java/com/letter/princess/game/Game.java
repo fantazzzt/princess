@@ -2,8 +2,11 @@ package com.letter.princess.game;
 
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
-import com.letter.princess.models.Hand;
 import com.letter.princess.models.Player;
+import com.letter.princess.views.CardView;
+import com.letter.princess.views.GameView;
+import com.letter.princess.views.KnownCard;
+import com.letter.princess.views.PlayerView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -42,25 +45,19 @@ public class Game {
     // TODO: fix how it gets currentPlayer and otherPlayer views
     // TODO: add tests
     public GameView gameView(Player player) {
-        return new GameView(currentRound, numTokensToWin, getPlayerView(player, player), Collections.emptyList());
+        return new GameView(currentRound, numTokensToWin, getSelfView(player), Collections.emptyList());
     }
 
-    // TODO: add tests, also better name to check player equality
-    private PlayerView getPlayerView(Player viewingPlayer, Player targetPlayer) {
-        if (viewingPlayer.getName().equals(targetPlayer.getName())) {
-            Hand viewingHand = viewingPlayer.getHand();
-            return new PlayerView(viewingPlayer.getName(),
-                    viewingHand.getNumCards(),
-                    viewingHand.getCardsInHand(),
-                    viewingPlayer.getDiscardedCards(),
-                    viewingPlayer.getNumTokens());
-        } else {
-            return new PlayerView(targetPlayer.getName(),
-                    targetPlayer.getHand().getNumCards(),
-                    null,
-                    targetPlayer.getDiscardedCards(),
-                    targetPlayer.getNumTokens());
-        }
+    // TODO: add tests, also better way to check player equality
+    private PlayerView getSelfView(Player player) {
+        return new PlayerView(player.getName(),
+                getHandView(player),
+                Collections.emptyList(),
+                player.getNumTokens()
+                );
     }
 
+    private List<CardView> getHandView(Player player) {
+        return player.getHand().getCardsInHand().stream().map(c -> (CardView) new KnownCard(c)).toList();
+    }
 }

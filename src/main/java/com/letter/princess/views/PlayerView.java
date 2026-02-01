@@ -1,4 +1,4 @@
-package com.letter.princess.game;
+package com.letter.princess.views;
 
 import com.letter.princess.models.Card;
 
@@ -6,8 +6,7 @@ import java.util.List;
 
 public record PlayerView(
         String playerName,
-        int numCards,
-        List<Card> hand,
-        List<Card> discardedCards,
+        List<CardView> hand,
+        List<CardView> discardedCards,
         int numTokens
 ) {}

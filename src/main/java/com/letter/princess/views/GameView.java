@@ -1,4 +1,4 @@
-package com.letter.princess.game;
+package com.letter.princess.views;
 
 import java.util.List;
 
