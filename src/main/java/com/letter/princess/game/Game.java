@@ -1,5 +1,6 @@
 package com.letter.princess.game;
 
+import com.letter.princess.game.state.GameState;
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
@@ -24,31 +25,47 @@ public class Game {
     @Getter
     private final int numTokensToWin;
     private final Deck deck;
-    private final Card discardedCard;
-    // TODO: add support for 2-player game (3 discarded cards, faceup)
+    private final List<Card> discardedCards;
     @Getter
     private int currentRound;
+    @Getter
+    private GameState gameState;
 
     // TODO: implement actions
     /*
-     getGameState(player) -> shows current state of the world from POV of player
-         do we need a field to select current player? then getGameState doesnt
-         need to take player as arg
+     PLAYING CARDS
      drawCard(player) -> draw card from deck
      getValidCardsToPlay(player) -> shows what cards can be chosen (e.g. if
          King and Countess in hand, then only Countess)
      playCard(player) -> take card out of hand, apply rules
      getValidTargets(player, card) -> get list of players that can be
          selected as targets
+
+     RESOLVING EFFECTS
+
+     EVENTS
+     addEvent(GameEvent)
      ...
+     */
+    /**
+     * Get the view of the game from the POV of given player.
+     * @param player Player to get view from
+     * @return
      */
     // TODO: fix how it gets currentPlayer and otherPlayer views
     // TODO: add tests
+    // TODO: how to get spectator's game view?
     public GameView gameView(Player player) {
-        return new GameView(currentRound, numTokensToWin, getSelfView(player), Collections.emptyList(), deck.getSize());
+        return new GameView(currentRound,
+                numTokensToWin,
+                getSelfView(player),
+                Collections.emptyList(), // TODO: get other player views
+                deck.getSize(),
+                gameState);
     }
 
-    // TODO: add tests, also better way to check player equality
+    // TODO: consider making this getView(Player player, boolean isSelf)
+    // TODO: add tests
     private PlayerView getSelfView(Player player) {
         return new PlayerView(player.getName(),
                 getHandView(player),
@@ -58,6 +75,11 @@ public class Game {
                 );
     }
 
+    /**
+     * Returns a fully-visible view of the player's hand
+     * @param player
+     * @return
+     */
     private List<CardView> getHandView(Player player) {
         return player.getHand().getCardsInHand().stream().map(c -> (CardView) new KnownCard(c)).toList();
     }

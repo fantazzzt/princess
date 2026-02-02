@@ -1,11 +1,13 @@
 package com.letter.princess.game;
 
+import com.letter.princess.game.state.AwaitingDraw;
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GameBuilder {
@@ -61,6 +63,8 @@ public class GameBuilder {
             players.add(newPlayer);
         }
         Card discardedCard = newDeck.draw();
-        return new Game(players, NUM_TOKENS_WIN, newDeck, discardedCard, 1);
+        return new Game(players, NUM_TOKENS_WIN, newDeck,
+                Collections.singletonList(discardedCard),
+                1, AwaitingDraw.AWAITING_DRAW);
     }
 }

@@ -1,5 +1,7 @@
 package com.letter.princess.views;
 
+import com.letter.princess.game.state.GameState;
+
 import java.util.List;
 
 /**
@@ -10,12 +12,14 @@ import java.util.List;
  * @param otherPlayers
  * @param numCardsInDeck
  */
+// TODO: perhaps store game data in a metadata object instead of flat fields?
 public record GameView(
         int currentRound,
         int numTokensToWin,
-        PlayerView currentPlayer,
+        PlayerView currentPlayer, // TODO: alt: make this a PlayerId, List<PlayerView> = all players including self?
         List<PlayerView> otherPlayers,
-        int numCardsInDeck
-        // TODO: how to model current state?
-        // TODO: perhaps store game data in a metadata object instead of flat fields?
+        int numCardsInDeck,
+        GameState gameState
+        // TODO: if requesting player == currentPlayer, return List<Action> validActions?
+        // TODO: add List<Event> eventLog
 ) {}
