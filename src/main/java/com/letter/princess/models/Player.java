@@ -24,6 +24,14 @@ public class Player {
     @Getter
     @Setter
     private Hand hand;
+
+    /**
+     * Whether player is still in the current round
+     */
+    @Getter
+    @Setter
+    private boolean isInRound;
+
     /**
      * Whether player is currently immune to being chosen as target by
      * another player (e.g. they played a Handmaid)
@@ -43,6 +51,7 @@ public class Player {
         this.setHand(new Hand());
         this.setImmune(false);
         this.discardedCards = new ArrayList<>();
+        this.isInRound = true;
     }
 
     /**

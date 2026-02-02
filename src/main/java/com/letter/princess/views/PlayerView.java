@@ -1,12 +1,18 @@
 package com.letter.princess.views;
 
-import com.letter.princess.models.Card;
-
 import java.util.List;
 
+/**
+ * Represents a view of a player, sent to client
+ * @param playerName
+ * @param hand
+ * @param discardedCards
+ * @param numTokens
+ */
 public record PlayerView(
         String playerName,
         List<CardView> hand,
         List<CardView> discardedCards,
-        int numTokens
+        int numTokens,
+        boolean isInRound // could also infer this from hand being empty, but prefer avoid client side inferring
 ) {}

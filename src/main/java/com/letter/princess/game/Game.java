@@ -45,7 +45,7 @@ public class Game {
     // TODO: fix how it gets currentPlayer and otherPlayer views
     // TODO: add tests
     public GameView gameView(Player player) {
-        return new GameView(currentRound, numTokensToWin, getSelfView(player), Collections.emptyList());
+        return new GameView(currentRound, numTokensToWin, getSelfView(player), Collections.emptyList(), deck.getSize());
     }
 
     // TODO: add tests, also better way to check player equality
@@ -53,7 +53,8 @@ public class Game {
         return new PlayerView(player.getName(),
                 getHandView(player),
                 Collections.emptyList(),
-                player.getNumTokens()
+                player.getNumTokens(),
+                player.isInRound()
                 );
     }
 
