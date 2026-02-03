@@ -12,7 +12,9 @@ import java.util.List;
 // TODO: change player identification to be by Id (not String name) to hide info
 public class Player {
     @Getter
-    private final String name;
+    private final PlayerId playerId;
+    @Getter
+    private final String displayName;
     /**
      * Number of tokens player has acquired in current game
      */
@@ -45,8 +47,9 @@ public class Player {
      */
     private final List<Card> discardedCards;
 
-    public Player(String name) {
-        this.name = name;
+    public Player(PlayerId id, String displayName) {
+        this.playerId = id;
+        this.displayName = displayName;
         this.numTokens = 0;
         this.setHand(new Hand());
         this.setImmune(false);

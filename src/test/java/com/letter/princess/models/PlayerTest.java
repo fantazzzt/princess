@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,12 +13,12 @@ public class PlayerTest {
 
     @BeforeEach
     public void setUp() {
-        player = new Player("Alice");
+        player = new Player(new PlayerId("AliceId"), "Alice");
     }
 
     @Test
     public void testInitializesDefaultsCorrectly() {
-        assertEquals("Alice", player.getName());
+        assertEquals("Alice", player.getDisplayName());
         assertEquals(0, player.getNumTokens());
         assertFalse(player.isImmune());
     }

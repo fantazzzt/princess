@@ -61,12 +61,12 @@ public class GameBuilderTest {
         Game game = gameBuilder.addPlayer("olga")
                 .addPlayer("caden")
                 .startGame();
-        assertEquals(game.getCurrentRound(), 1);
-        assertEquals(game.getNumTokensToWin(), NUM_TOKENS_WIN);
-        List<Player> players = game.getPlayers();
+        assertEquals(game.currentRound(), 1);
+        assertEquals(game.numTokensToWin(), NUM_TOKENS_WIN);
+        List<Player> players = game.players();
         assertEquals(players.size(), 2);
-        assertEquals("olga", players.get(0).getName());
-        assertEquals("caden", players.get(1).getName());
+        assertEquals("olga", players.get(0).getDisplayName());
+        assertEquals("caden", players.get(1).getDisplayName());
     }
 
     @Test

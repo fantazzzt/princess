@@ -4,6 +4,7 @@ import com.letter.princess.game.state.AwaitingDraw;
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
+import com.letter.princess.models.PlayerId;
 import lombok.NonNull;
 
 import java.util.ArrayList;
@@ -30,7 +31,13 @@ public class GameBuilder {
         return playerNames.size() >= MAX_NUM_PLAYERS;
     }
 
+    // TODO: when adding player, maybe need their id and playerName, not just
+    //  name (so we can support multiple players with same name)
     public GameBuilder addPlayer(@NonNull String playerName) {
+        if (playerNames.contains(playerName)) {
+            throw new IllegalArgumentException("Cannot have 2 players with " +
+                    "same name " + playerName);
+        }
         if (isGameFull()) {
             throw new IllegalStateException("Cannot have more than " + MAX_NUM_PLAYERS + " players in game");
         }
@@ -58,12 +65,14 @@ public class GameBuilder {
         Deck newDeck = Deck.newDeck();
         List<Player> players = new ArrayList<>();
         for (String name : playerNames) {
-            Player newPlayer = new Player(name);
+            PlayerId playerId = new PlayerId(name); // TODO: use UUID
+            Player newPlayer = new Player(playerId, name);
             newPlayer.addCardToHand(newDeck.draw());
             players.add(newPlayer);
         }
         Card discardedCard = newDeck.draw();
-        return new Game(players, NUM_TOKENS_WIN, newDeck,
+        // TODO: player order random?
+        return new Game(players, 0, NUM_TOKENS_WIN, newDeck,
                 Collections.singletonList(discardedCard),
                 1, AwaitingDraw.AWAITING_DRAW);
     }
