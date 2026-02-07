@@ -1,9 +1,7 @@
 package com.letter.princess.game;
 
 import com.letter.princess.game.state.GameState;
-import com.letter.princess.models.Card;
-import com.letter.princess.models.Deck;
-import com.letter.princess.models.Player;
+import com.letter.princess.models.*;
 import com.letter.princess.views.*;
 import lombok.AllArgsConstructor;
 
@@ -42,33 +40,43 @@ public class Game {
     /**
      * Get the view of the game from the POV of given player.
      * @param player Player to get view from
-     * @return
+     * @return complete view of the game as seen by player
      */
-    // TODO: fix how it gets currentPlayer and otherPlayer views
     // TODO: add tests
-    // TODO: how to get spectator's game view?
     public GameView gameView(Player player) {
         return new GameView(currentRound,
                 numTokensToWin,
                 currentPlayerIndex,
-                getPlayerViews(player),
+                getPlayerViews(player.getPlayerId()),
                 deck.getSize(),
                 gameState);
     }
 
     // TODO: add tests
-    private List<PlayerView> getPlayerViews(Player player) {
-        return players.stream().map(p -> getPlayerView(p, p.equals(player))).toList();
+    private List<PlayerView> getPlayerViews(PlayerId playerId) {
+        return players.stream().map(p -> getPlayerView(p, playerId)).toList();
     }
 
     // TODO: refactor this more, dont have isSelf boolean
-    private PlayerView getPlayerView(Player player, boolean isSelf) {
-        return new PlayerView(player.getDisplayName(),
-                isSelf ? getVisibleHand(player) : getHiddenHand(player),
+    private PlayerView getPlayerView(Player player, PlayerId viewerId) {
+        return new PlayerView(player.getPlayerId(),
+                player.getDisplayName(),
+                getHandView(player, viewerId),
                 getDiscardedCardsView(player),
                 player.getNumTokens(),
                 player.isInRound()
         );
+    }
+
+    /**
+     * Get the hand view for player from perspective of viewerId
+     * @param player Player whose hand to "see"
+     * @param viewerId Player viewing the hand
+     * @return list of visible cards if player == viewer, otherwise list of hidden cards
+     */
+    private List<CardView> getHandView(Player player, PlayerId viewerId) {
+        boolean revealed = player.getPlayerId().equals(viewerId);
+        return revealed ? toVisibleHand(player.getHand()) : toHiddenHand(player.getHand());
     }
 
     /**
@@ -82,15 +90,20 @@ public class Game {
 
     /**
      * Returns a fully-visible view of the player's hand
-     * @param player Player whose hand view to return
+     * @param hand hand to reveal
      * @return List of cards representing the hand
      */
-    private List<CardView> getVisibleHand(Player player) {
-        return player.getHand().getCardsInHand().stream().map(c -> (CardView) new KnownCard(c)).toList();
+    private List<CardView> toVisibleHand(Hand hand) {
+        return hand.getCardsInHand().stream().map(CardView::known).toList();
     }
 
-    private List<CardView> getHiddenHand(Player player) {
-        return player.getHand().getCardsInHand().stream().map(c -> (CardView) HiddenCard.HIDDEN_CARD).toList();
+    /**
+     * Returns a hidden view of the player's hand
+     * @param hand hand to get as hidden
+     * @return List of cards representing the hand
+     */
+    private List<CardView> toHiddenHand(Hand hand) {
+        return hand.getCardsInHand().stream().map(c -> CardView.hidden()).toList();
     }
 
     public int currentRound() {
