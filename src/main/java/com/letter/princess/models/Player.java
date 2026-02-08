@@ -66,6 +66,7 @@ public class Player {
 
     /**
      * Add card to player's hand (e.g. after drawing from deck)
+     *
      * @param card
      */
     public void addCardToHand(Card card) {
@@ -74,6 +75,7 @@ public class Player {
 
     /**
      * Remove card from player's hand (e.g. when playing card)
+     *
      * @return card that was removed
      */
     public Card removeCardFromHand(Card card) {

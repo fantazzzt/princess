@@ -56,6 +56,7 @@ public class GameBuilder {
 
     /**
      * Game factory
+     *
      * @return newly-initialised game of Princess
      */
     public Game startGame() {
