@@ -1,5 +1,7 @@
 package com.letter.princess.game;
 
+import com.letter.princess.game.state.AwaitingDraw;
+import com.letter.princess.game.state.AwaitingPlay;
 import com.letter.princess.game.state.GameState;
 import com.letter.princess.models.*;
 import com.letter.princess.views.*;
@@ -37,6 +39,24 @@ public class Game {
      addEvent(GameEvent)
      ...
      */
+    // TODO: add tests
+    public Card drawCard() {
+        if (!gameState.equals(AwaitingDraw.AWAITING_DRAW)) {
+            throw new IllegalStateException("Cannot draw card");
+        }
+        Player currentPlayer = currentPlayer();
+        if (deck.isEmpty()) {
+            throw new IllegalStateException("Deck is empty");
+        }
+        Card card = deck.draw();
+        currentPlayer.addCardToHand(card);
+        gameState = AwaitingPlay.AWAITING_PLAY;
+        return card;
+    }
+
+    private Player currentPlayer() {
+        return players.get(currentPlayerIndex);
+    }
     /**
      * Get the view of the game from the POV of given player.
      * @param player Player to get view from

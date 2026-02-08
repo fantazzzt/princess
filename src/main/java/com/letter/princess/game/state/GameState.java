@@ -4,4 +4,5 @@ sealed public interface GameState permits AwaitingDraw,
         AwaitingPlay,
         AwaitingTarget,
         AwaitingEffectResolution,
-        AwaitingEndTurn {}
+        AwaitingEndTurn,
+GameOver {}
