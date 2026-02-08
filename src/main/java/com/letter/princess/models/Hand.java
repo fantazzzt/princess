@@ -15,6 +15,7 @@ public class Hand {
 
     /**
      * Get the cards in the current hand
+     *
      * @return collection of cards in hand (can be safely modified)
      */
     public List<Card> getCardsInHand() {
@@ -30,6 +31,7 @@ public class Hand {
 
     /**
      * Add card to the current hand
+     *
      * @param card Card to add
      */
     public void addCard(Card card) {

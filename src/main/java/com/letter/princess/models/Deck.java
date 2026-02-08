@@ -13,8 +13,10 @@ public class Deck {
     private final List<Card> deck;
 
     // TODO: maybe move actual list of cards in deck into Game
+
     /**
      * Build a new default deck, currently empty
+     *
      * @return new deck
      */
     public static Deck newDeck() {
@@ -28,6 +30,7 @@ public class Deck {
     /**
      * Initialise a new deck with the given list of cards
      * Makes a copy of the passed-in deck
+     *
      * @param deck List of cards to put in the deck, can be safely modified
      *             without affecting the new Deck
      */
@@ -59,6 +62,7 @@ public class Deck {
 
     /**
      * Get a copy of the entire deck (returned list can be safely modified)
+     *
      * @return list of all cards in the deck, in order of their appearance
      */
     public List<Card> getAllCards() {

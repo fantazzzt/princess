@@ -15,6 +15,6 @@ public class CardTest {
     @Test
     public void testRole() {
         final Card princess = new Card(Role.PRINCESS);
-        assertEquals(Role.PRINCESS, princess.getRole());
+        assertEquals(Role.PRINCESS, princess.role());
     }
 }
