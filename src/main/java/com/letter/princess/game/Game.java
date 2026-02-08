@@ -57,10 +57,8 @@ public class Game {
     private Player currentPlayer() {
         return players.get(currentPlayerIndex);
     }
-
     /**
      * Get the view of the game from the POV of given player.
-     *
      * @param player Player to get view from
      * @return complete view of the game as seen by player
      */
@@ -92,8 +90,7 @@ public class Game {
 
     /**
      * Get the hand view for player from perspective of viewerId
-     *
-     * @param player   Player whose hand to "see"
+     * @param player Player whose hand to "see"
      * @param viewerId Player viewing the hand
      * @return list of visible cards if player == viewer, otherwise list of hidden cards
      */
@@ -104,7 +101,6 @@ public class Game {
 
     /**
      * Returns a fully-visible view of the player's discarded cards, in order first to latest
-     *
      * @param player Player to get discarded cards for
      * @return list of KnownCard CardViews
      */
@@ -114,7 +110,6 @@ public class Game {
 
     /**
      * Returns a fully-visible view of the player's hand
-     *
      * @param hand hand to reveal
      * @return List of cards representing the hand
      */
@@ -124,7 +119,6 @@ public class Game {
 
     /**
      * Returns a hidden view of the player's hand
-     *
      * @param hand hand to get as hidden
      * @return List of cards representing the hand
      */
