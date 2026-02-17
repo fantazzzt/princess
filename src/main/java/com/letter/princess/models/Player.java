@@ -9,7 +9,6 @@ import java.util.List;
 /**
  * Represents a player in a game of Princess
  */
-// TODO: change player identification to be by Id (not String name) to hide info
 public class Player {
     @Getter
     private final PlayerId playerId;
