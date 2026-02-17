@@ -1,7 +1,6 @@
 package com.letter.princess.models;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.UUID;
 
