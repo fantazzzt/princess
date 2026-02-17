@@ -66,7 +66,7 @@ public class GameBuilder {
         Deck newDeck = Deck.newDeck();
         List<Player> players = new ArrayList<>();
         for (String name : playerNames) {
-            PlayerId playerId = new PlayerId(name); // TODO: use UUID
+            PlayerId playerId = new PlayerId(name);
             Player newPlayer = new Player(playerId, name);
             newPlayer.addCardToHand(newDeck.draw());
             players.add(newPlayer);
