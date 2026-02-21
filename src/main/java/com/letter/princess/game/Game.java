@@ -11,6 +11,7 @@ import com.letter.princess.views.PlayerView;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents a complete game of Princess
@@ -145,5 +146,9 @@ public class Game {
 
     public List<Player> players() {
         return List.copyOf(players);
+    }
+
+    public Player getPlayerById(UUID playerId) {
+        return players.stream().filter(i -> i.getPlayerId().getGlobalId().equals(playerId)).findFirst().orElseThrow();
     }
 }
