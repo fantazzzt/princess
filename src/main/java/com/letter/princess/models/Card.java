@@ -1,5 +1,7 @@
 package com.letter.princess.models;
 
+import lombok.NonNull;
+
 /**
  * Represents a Card that can be played.
  * Cards have a role and can be compared to other cards.
@@ -8,6 +10,7 @@ package com.letter.princess.models;
 public record Card(Role role) implements Comparable<Card> {
 
     @Override
+    @NonNull
     public String toString() {
         return this.role.toString();
     }

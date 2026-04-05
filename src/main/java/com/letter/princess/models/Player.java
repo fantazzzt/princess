@@ -41,6 +41,10 @@ public class Player {
     @Setter
     private boolean isImmune;
 
+    @Getter
+    @Setter
+    private boolean hasPlayedSpyThisRound;
+
     /**
      * Player's discarded hands in order (first = oldest discarded)
      */
