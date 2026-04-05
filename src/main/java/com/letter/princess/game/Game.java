@@ -9,6 +9,7 @@ import com.letter.princess.views.GameView;
 import com.letter.princess.views.KnownCard;
 import com.letter.princess.views.PlayerView;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class Game {
     private final Deck deck;
     private final List<Card> discardedCards;
     private int currentRound;
+    @Getter
     private GameState gameState;
 
     // TODO: implement actions
