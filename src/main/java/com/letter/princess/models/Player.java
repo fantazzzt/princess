@@ -8,10 +8,9 @@ import java.util.List;
 
 /**
  * Represents a player in a game of Princess
+ * TODO: go back to playerId when we need it for auth/db
  */
 public class Player {
-    @Getter
-    private final PlayerId playerId;
     @Getter
     private final String displayName;
     /**
@@ -23,8 +22,7 @@ public class Player {
      * Player's current hand (should be 1 card if it's not their turn)
      */
     @Getter
-    @Setter
-    private Hand hand;
+    private List<Card> hand;
 
     /**
      * Whether player is still in the current round
@@ -50,11 +48,10 @@ public class Player {
      */
     private final List<Card> discardedCards;
 
-    public Player(PlayerId id, String displayName) {
-        this.playerId = id;
+    public Player(String displayName) {
         this.displayName = displayName;
         this.numTokens = 0;
-        this.setHand(new Hand());
+        this.hand = new ArrayList<>();
         this.setImmune(false);
         this.discardedCards = new ArrayList<>();
         this.isInRound = true;
@@ -73,16 +70,21 @@ public class Player {
      * @param card
      */
     public void addCardToHand(Card card) {
-        this.hand.addCard(card);
+        this.hand.add(card);
     }
 
     /**
      * Remove card from player's hand (e.g. when playing card)
      *
-     * @return card that was removed
+     * @return removed card (for convenience
+     * @throws IllegalArgumentException if card isn't in hand
      */
     public Card removeCardFromHand(Card card) {
-        return hand.removeCard(card);
+        if (!hand.remove(card)) {
+            throw new IllegalArgumentException("Attempted to remove card that" +
+                    " wasn't in hand");
+        }
+        return card;
     }
 
     // TODO: add test

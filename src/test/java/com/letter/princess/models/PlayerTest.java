@@ -3,7 +3,9 @@ package com.letter.princess.models;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +16,7 @@ public class PlayerTest {
 
     @BeforeEach
     public void setUp() {
-        player = new Player(new PlayerId("AliceId"), "Alice");
+        player = new Player("Alice");
     }
 
     @Test
@@ -37,20 +39,20 @@ public class PlayerTest {
         Card card = new Card(Role.GUARD);
 
         player.addCardToHand(card);
-        Hand hand = player.getHand();
-        Collection<Card> currCards = hand.getCardsInHand();
-        assertEquals(1, currCards.size());
-        assertTrue(currCards.contains(card));
+        List<Card> hand = player.getHand();
+        assertEquals(1, hand.size());
+        assertTrue(hand.contains(card));
     }
 
     @Test
-    public void testRemoveCardFromHand() throws IllegalAccessException {
+    public void testRemoveCardFromHand() {
         Card card = new Card(Role.PRINCE);
         player.addCardToHand(card);
-        Card removedCard = player.removeCardFromHand(card);
-        assertEquals(card, removedCard);
-        assertFalse(player.getHand().getCardsInHand().contains(card));
-        assertEquals(0, player.getHand().getCardsInHand().size());
+        List<Card> expectedHand = new ArrayList<>();
+        expectedHand.add(card);
+        assertEquals(expectedHand, player.getHand());
+        assertEquals(card, player.removeCardFromHand(card));
+        assertTrue(player.getHand().isEmpty());
     }
 
     @Test
@@ -66,7 +68,7 @@ public class PlayerTest {
         );
 
         assertEquals(
-                "You cannot play that card because it is not in the player's hand!",
+                "Attempted to remove card that wasn't in hand",
                 exception.getMessage()
         );
     }

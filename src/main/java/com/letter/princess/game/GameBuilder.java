@@ -1,15 +1,15 @@
 package com.letter.princess.game;
 
-import com.letter.princess.game.state.AwaitingDraw;
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
-import com.letter.princess.models.PlayerId;
 import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.letter.princess.game.state.AwaitingDraw.AWAITING_DRAW;
 
 public class GameBuilder {
     // TODO: add support for mapping num players to num tokens to win
@@ -31,8 +31,7 @@ public class GameBuilder {
         return playerNames.size() >= MAX_NUM_PLAYERS;
     }
 
-    // TODO: when adding player, maybe need their id and playerName, not just
-    //  name (so we can support multiple players with same name)
+    // DESIGN DECISION: players identified by playerName only, no id yet
     public GameBuilder addPlayer(@NonNull String playerName) {
         if (playerNames.contains(playerName)) {
             throw new IllegalArgumentException("Cannot have 2 players with " +
@@ -63,18 +62,17 @@ public class GameBuilder {
         if (playerNames.size() < MIN_NUM_PLAYERS) {
             throw new IllegalStateException("Not enough players in the game! Need at least " + MIN_NUM_PLAYERS + "players");
         }
+        // TODO: rework how game is inited
         Deck newDeck = Deck.newDeck();
         List<Player> players = new ArrayList<>();
         for (String name : playerNames) {
-            PlayerId playerId = new PlayerId(name);
-            Player newPlayer = new Player(playerId, name);
+            Player newPlayer = new Player(name);
             newPlayer.addCardToHand(newDeck.draw());
             players.add(newPlayer);
         }
         Card discardedCard = newDeck.draw();
         // TODO: player order random?
-        return new Game(players, 0, NUM_TOKENS_WIN, newDeck,
-                Collections.singletonList(discardedCard),
-                1, AwaitingDraw.AWAITING_DRAW);
+        return new Game(1, 0, 5, players, newDeck,
+                Collections.singletonList(discardedCard), AWAITING_DRAW);
     }
 }
