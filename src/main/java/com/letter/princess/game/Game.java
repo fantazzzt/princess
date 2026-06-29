@@ -11,6 +11,9 @@ import lombok.Getter;
 
 import java.util.List;
 
+import static com.letter.princess.game.state.AwaitingDraw.AWAITING_DRAW;
+import static com.letter.princess.game.state.Initializing.INITIALIZING;
+
 /**
  * Represents a complete game of Princess
  */
@@ -29,6 +32,44 @@ public class Game {
     @Getter
     private GameState gameState;
 
+    // ======== Game init ========
+    /**
+     * Initialize game from INITIALIZING -> AWAITING_DRAW state
+     */
+    void init() {
+        if (!INITIALIZING.equals(gameState)) {
+            throw new IllegalStateException("State must be INITIALIZING to " +
+                    "call init");
+        }
+        removeStartingCards();
+        drawInitialHands();
+        gameState = AWAITING_DRAW;
+    }
+
+    /**
+     * Remove the starting 1 hidden card (3+ player game) or 3 revealed cards
+     * (2 player game) when init game
+     */
+    private void removeStartingCards() {
+        removedCards.add(deck.draw());
+        if (players.size() == 2) {
+            // 3 total removed cards
+            removedCards.add(deck.draw());
+            removedCards.add(deck.draw());
+        }
+    }
+
+    /**
+     * Draw the initial hand for each player when init game
+     */
+    private void drawInitialHands() {
+        for (Player player : players) {
+            player.addCardToHand(deck.draw());
+        }
+    }
+
+    // ======== Game init ========
+
     /**
      * Draw a card to the given player's hand
      * @param player Current player (must be validated before this method)
@@ -37,7 +78,7 @@ public class Game {
      * deck has no cards
      */
     public Card drawCard(Player player) {
-        if (!gameState.equals(AwaitingDraw.AWAITING_DRAW)) {
+        if (!gameState.equals(AWAITING_DRAW)) {
             throw new IllegalStateException("Cannot draw card");
         }
         if (deck.isEmpty()) {

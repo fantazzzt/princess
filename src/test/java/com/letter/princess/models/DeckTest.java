@@ -24,7 +24,7 @@ public class DeckTest {
 
     @Test
     public void testNewDeckHasDefaultCards() {
-        deck = Deck.newDeck();
+        deck = Deck.testDeck();
         assertEquals(3, deck.getSize());
         List<Card> expectedCards = List.of(new Card(Role.PRIEST), new Card(Role.PRINCESS), new Card(Role.PRIEST));
         List<Card> deckCards = deck.getAllCards();

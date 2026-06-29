@@ -11,14 +11,12 @@ public class Deck {
 
     private final List<Card> deck;
 
-    // TODO: maybe move actual list of cards in deck into Game
-
     /**
      * Build a new default deck, currently empty
      *
      * @return new deck
      */
-    public static Deck newDeck() {
+    public static Deck testDeck() {
         List<Card> defaultStartingCards = new ArrayList<>();
         defaultStartingCards.add(new Card(Role.PRIEST));
         defaultStartingCards.add(new Card(Role.PRINCESS));
