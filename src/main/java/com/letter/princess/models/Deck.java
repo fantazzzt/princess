@@ -21,6 +21,9 @@ public class Deck {
         defaultStartingCards.add(new Card(Role.PRIEST));
         defaultStartingCards.add(new Card(Role.PRINCESS));
         defaultStartingCards.add(new Card(Role.PRIEST));
+        defaultStartingCards.add(new Card(Role.SPY));
+        defaultStartingCards.add(new Card(Role.SPY));
+        defaultStartingCards.add(new Card(Role.HANDMAID));
         return new Deck(defaultStartingCards);
     }
 

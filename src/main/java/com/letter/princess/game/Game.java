@@ -68,7 +68,12 @@ public class Game {
         }
     }
 
-    // ======== Game init ========
+    // ======== Game state ========
+
+    // TODO: make it easier to go from Player -> their index in game?
+    public boolean isCurrentPlayer(Player player) {
+        return currentPlayerIndex == players.indexOf(player);
+    }
 
     /**
      * Draw a card to the given player's hand
@@ -86,7 +91,7 @@ public class Game {
         }
         Card card = deck.draw();
         player.addCardToHand(card);
-        gameState = new AwaitingPlay(currentPlayerIndex);
+        gameState = AwaitingPlay.AWAITING_PLAY;
         return card;
     }
 

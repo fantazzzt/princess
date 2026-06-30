@@ -21,6 +21,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./mvnw compile
 ```
 
+## Conventions
+
+### Testing
+
+- **Prefer parameterized tests for near-identical cases.** When several tests share one body and differ only by inputs/expected values, write a single JUnit 5 `@ParameterizedTest` fed by a `@MethodSource`, rather than copy-pasted `@Test` methods. Pass a leading `String description` as the first argument and use `@ParameterizedTest(name = "{0}")` so each case reports under its own label. See `GameTest.isCurrentPlayer` and `GameEngineTest.validatePlayCard_throwsForInvalidPlay` for the pattern. A test that asserts a genuinely different shape (e.g. a success/no-throw path among rejection cases) stays its own `@Test`.
+
 ## Architecture
 
 **Princess** is a Spring Boot REST API backend for the Love Letter card game. Java 24, Spring Boot 4.0.0, Maven.

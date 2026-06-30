@@ -6,14 +6,20 @@ import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
 import com.letter.princess.models.Role;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.letter.princess.game.state.AwaitingDraw.AWAITING_DRAW;
+import static com.letter.princess.game.state.AwaitingPlay.AWAITING_PLAY;
 import static com.letter.princess.game.state.Initializing.INITIALIZING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class GameTest {
 
@@ -85,5 +91,40 @@ public class GameTest {
                 deck, new ArrayList<>(), AWAITING_DRAW);
 
         assertThrows(IllegalStateException.class, game::init);
+    }
+
+    /**
+     * Build a game in the given turn-state. isCurrentPlayer only reads
+     * currentPlayerIndex + players, so deck/removed pile are empty here.
+     */
+    private static Game gameAtTurn(int currentPlayerIndex, List<Player> players) {
+        return new Game(1, currentPlayerIndex, NUM_TOKENS_TO_WIN, players,
+                new Deck(List.of()), new ArrayList<>(), AWAITING_PLAY);
+    }
+
+    static Stream<Arguments> isCurrentPlayerCases() {
+        Player alice = new Player("alice");
+        Player bob = new Player("bob");
+        Player stranger = new Player("stranger");
+        List<Player> players = List.of(alice, bob);
+        return Stream.of(
+                arguments("player at the current index is current",
+                        0, players, alice, true),
+                arguments("another player is not current",
+                        0, players, bob, false),
+                arguments("current player follows currentPlayerIndex",
+                        1, players, bob, true),
+                arguments("player not in the game is not current",
+                        0, players, stranger, false));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("isCurrentPlayerCases")
+    public void isCurrentPlayer(String description, int currentPlayerIndex,
+                                List<Player> players, Player candidate,
+                                boolean expected) {
+        Game game = gameAtTurn(currentPlayerIndex, players);
+
+        assertEquals(expected, game.isCurrentPlayer(candidate));
     }
 }
