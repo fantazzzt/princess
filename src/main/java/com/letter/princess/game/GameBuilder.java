@@ -57,21 +57,28 @@ public class GameBuilder {
      * @return newly-initialised game of Princess
      */
     public Game startGame() {
+        // TODO: build the real deck and shuffle it (and player order) here.
+        return startGameWithDeck(Deck.testDeck());
+    }
+
+    /**
+     * Build and initialise a game over a caller-supplied deck, used in its
+     * given order (no shuffling).
+     * @param deck deck to play with, used in its given order
+     * @return newly-initialised game of Princess
+     */
+    Game startGameWithDeck(@NonNull Deck deck) {
         if (playerNames.size() < MIN_NUM_PLAYERS) {
-            throw new IllegalStateException("Not enough players in the game! Need at least " + MIN_NUM_PLAYERS + "players");
+            throw new IllegalStateException("Not enough players in the game! " +
+                    "Need at least " + MIN_NUM_PLAYERS + " players");
         }
-        // 1. new deck
-        Deck newDeck = Deck.testDeck();
         List<Player> players = new ArrayList<>();
-        // 2. player list
         for (String name : playerNames) {
-            Player newPlayer = new Player(name);
-            players.add(newPlayer);
+            players.add(new Player(name));
         }
-        // TODO: shuffle player list
-        Game newGame = new Game(1, 0, NUM_TOKENS_WIN,
-                players, newDeck, new ArrayList<>(), INITIALIZING);
-        // 3. init game: removed cards, draw to each player's hand
+        // TODO: shuffle player list (production only; tests rely on lobby order)
+        Game newGame = new Game(1, 0, NUM_TOKENS_WIN, players, deck,
+                new ArrayList<>(), INITIALIZING);
         newGame.init();
         return newGame;
     }
