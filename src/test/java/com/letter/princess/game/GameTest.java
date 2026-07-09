@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static com.letter.princess.game.state.AwaitingDraw.AWAITING_DRAW;
@@ -91,6 +92,64 @@ public class GameTest {
                 deck, new ArrayList<>(), AWAITING_DRAW);
 
         assertThrows(IllegalStateException.class, game::init);
+    }
+
+    @Test
+    public void drawCard_movesTopCardToPlayersHandAndReturnsIt() {
+        Player alice = new Player("alice");
+        Player bob = new Player("bob");
+        Deck deck = new Deck(List.of(PRIEST_1, SPY_1));
+        Game game = newGame(List.of(alice, bob), deck, new ArrayList<>(),
+                AWAITING_DRAW);
+
+        Card drawn = game.drawCard(alice);
+
+        assertEquals(PRIEST_1, drawn);
+        assertEquals(List.of(PRIEST_1), alice.getHand());
+        assertEquals(1, deck.getSize());
+    }
+
+    @Test
+    public void drawCard_drawsForNonCurrentPlayerInAnyState() {
+        // Game.drawCard has no state or turn checks — the Prince effect makes
+        // another player draw mid-turn, so those checks belong to GameEngine.
+        Player alice = new Player("alice");
+        Player bob = new Player("bob");
+        Deck deck = new Deck(List.of(SPY_1));
+        Game game = newGame(List.of(alice, bob), deck, new ArrayList<>(),
+                AWAITING_PLAY);
+
+        Card drawn = game.drawCard(bob);
+
+        assertEquals(SPY_1, drawn);
+        assertEquals(List.of(SPY_1), bob.getHand());
+    }
+
+    @Test
+    public void drawCard_emptyDeckThrows() {
+        // Game.drawCard does not guard the empty deck; the raw Deck error
+        // escapes. GameEngine.drawCard owns the friendly empty-deck check.
+        Player alice = new Player("alice");
+        Game game = newGame(List.of(alice, new Player("bob")),
+                new Deck(List.of()), new ArrayList<>(), AWAITING_DRAW);
+
+        assertThrows(NoSuchElementException.class, () -> game.drawCard(alice));
+    }
+
+    static Stream<Arguments> isDeckEmptyCases() {
+        return Stream.of(
+                arguments("empty deck", List.<Card>of(), true),
+                arguments("non-empty deck", List.of(SPY_1), false));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("isDeckEmptyCases")
+    public void isDeckEmpty(String description, List<Card> cards,
+                            boolean expected) {
+        Game game = newGame(List.of(new Player("alice"), new Player("bob")),
+                new Deck(cards), new ArrayList<>(), AWAITING_DRAW);
+
+        assertEquals(expected, game.isDeckEmpty());
     }
 
     /**

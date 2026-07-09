@@ -1,13 +1,12 @@
 package com.letter.princess.game;
 
-import com.letter.princess.game.state.AwaitingDraw;
-import com.letter.princess.game.state.AwaitingPlay;
 import com.letter.princess.game.state.GameState;
 import com.letter.princess.models.Card;
 import com.letter.princess.models.Deck;
 import com.letter.princess.models.Player;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -26,10 +25,12 @@ public class Game {
     private int currentPlayerIndex;
     @Getter
     private final int numTokensToWin;
+    @Getter
     private final List<Player> players;
     private final Deck deck;
     private final List<Card> removedCards;
     @Getter
+    @Setter
     private GameState gameState;
 
     // ======== Game init ========
@@ -75,31 +76,22 @@ public class Game {
         return currentPlayerIndex == players.indexOf(player);
     }
 
+    public boolean isDeckEmpty() {
+        return deck.isEmpty();
+    }
+
+    // ======== Game actions ========
+
     /**
-     * Draw a card to the given player's hand
-     * @param player Current player (must be validated before this method)
-     * @return Card that was drawn
-     * @throws IllegalStateException if game state is not awaiting draw or if
-     * deck has no cards
+     * Draw card to the player's hand.
+     * Precondition: player is a valid player in the game.
+     * Player doesnt have to be the current player (see Prince rules).
+     * @param player Player to whose hand to draw card.
+     * @return card that was drawn.
      */
     public Card drawCard(Player player) {
-        if (!gameState.equals(AWAITING_DRAW)) {
-            throw new IllegalStateException("Cannot draw card");
-        }
-        if (deck.isEmpty()) {
-            throw new IllegalStateException("Deck is empty");
-        }
-        Card card = deck.draw();
-        player.addCardToHand(card);
-        gameState = AwaitingPlay.AWAITING_PLAY;
-        return card;
-    }
-
-    private Player currentPlayer() {
-        return players.get(currentPlayerIndex);
-    }
-
-    List<Player> getPlayers() {
-        return players;
+        Card drawnCard = deck.draw();
+        player.addCardToHand(drawnCard);
+        return drawnCard;
     }
 }

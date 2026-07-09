@@ -1,12 +1,19 @@
 package com.letter.princess.game;
 
-import com.letter.princess.game.state.AwaitingPlay;
+import com.letter.princess.game.state.GameState;
+import com.letter.princess.models.Action;
+import com.letter.princess.models.Card;
 import com.letter.princess.models.GameAction;
 import com.letter.princess.models.PlayCardResult;
 import com.letter.princess.models.Player;
 import lombok.NonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.letter.princess.game.state.AwaitingDraw.AWAITING_DRAW;
 import static com.letter.princess.game.state.AwaitingPlay.AWAITING_PLAY;
+import static com.letter.princess.models.Action.DRAW_CARD;
 import static com.letter.princess.models.Action.PLAY_CARD;
 
 /**
@@ -14,24 +21,64 @@ import static com.letter.princess.models.Action.PLAY_CARD;
  */
 public class GameEngine {
 
+    private static final Map<GameState, Action> validActionMap =
+            buildValidActionsMap();
+
+    // TODO: should this go into separate Validator class?
+    private static Map<GameState, Action> buildValidActionsMap() {
+        Map<GameState, Action> map = new HashMap<>();
+        map.put(AWAITING_DRAW, DRAW_CARD);
+        map.put(AWAITING_PLAY, PLAY_CARD);
+        return map;
+    }
+
+    /**
+     * Validate game action against current game state
+     */
+    public boolean validateAction(@NonNull final Game game,
+                               @NonNull final GameAction gameAction) {
+        if (gameAction.action() == null) {
+            return false;
+        }
+        return gameAction.action().equals(validActionMap.get(game.getGameState()));
+    }
+
+    /**
+     * Perform player action of drawing a card
+     * Precondition: game state is AWAITING_DRAW, it is player's turn
+     * this method should NOT be used to draw a card for non-current player
+     * TODO: above seems fragile; how to enforce this/make it easy to do
+     *  right thing, hard to do wrong thing?
+     * @param player Current player (must be validated before this method)
+     * @return Card that was drawn
+     * @throws IllegalStateException if game state is not Adeck has no cards
+     */
+    public Card drawCard(@NonNull final Game game, @NonNull final Player player) {
+        if (game.isDeckEmpty()) {
+            throw new IllegalStateException("Deck is empty");
+        }
+        Card card = game.drawCard(player);
+        game.setGameState(AWAITING_PLAY);
+        return card;
+    }
+
     /**
      * Validate that the given GameAction to play a card is valid.
-     * Assumes that player is already checked to be in the game, otherwise we
-     * couldn't get here.
+     * Precondition: player is already checked to be in the game
      * @param game Game to try and play card in
      * @param player Player in the game who wants to play card
      * @param action Request from client to play card
-     * @return
      */
     public void validatePlayCard(@NonNull Game game,
                                     @NonNull Player player,
                                     @NonNull GameAction action) {
-        if (!AWAITING_PLAY.equals(game.getGameState())) {
-            throw new IllegalArgumentException("Game state should be " +
-                    "AwaitingPlay, is " + game.getGameState());
-        }
+        // TODO: should this be moved up a level?
         if (!game.isCurrentPlayer(player)) {
             throw new IllegalArgumentException("It is not this player's turn");
+        }
+        if (!validateAction(game, action)) {
+            throw new IllegalArgumentException("Game state should be " +
+                    "AwaitingPlay, is " + game.getGameState());
         }
         if (!PLAY_CARD.equals(action.action())) {
             throw new IllegalArgumentException("Player action must be to play" +

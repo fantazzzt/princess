@@ -38,22 +38,20 @@ Controllers (REST /game/**)
     ↓
 GameService (@Service, manages lobby + active game lifecycle)
     ↓
-Game + GameBuilder (core game logic)
+GameBuilder + Game + GameEngine (core game logic)
     ↓
-Models (Player, Card, Deck, Hand, Role)
+game/logic (per-card effect logic — currently empty stubs)
     ↓
-Views (POV-filtered serialization for REST responses)
+Models (Player, Card, Deck, Role, Action, GameAction)
 ```
 
 ### Key Concepts
 
-**State Machine** — `GameState` is a sealed interface with implementations: `AwaitingDraw`, `AwaitingPlay`, `AwaitingEffectResolution`, `AwaitingEndTurn`, `GameOver`. The game always holds exactly one state.
+**State Machine** — `GameState` is a sealed interface with implementations: `Initializing`, `AwaitingDraw`, `AwaitingPlay`, `AwaitingEffectResolution`, `AwaitingEndTurn`, `GameOver`. Each implementation exposes a singleton constant (e.g. `AwaitingDraw.AWAITING_DRAW`). The game always holds exactly one state.
 
-**POV Filtering** — `Game.gameView(playerId)` returns a `GameView` where the requesting player's hand is `KnownCard` instances and all other players' hands are `HiddenCard`. This is the only information-hiding mechanism. `CardView` is a sealed interface for `KnownCard` (record) and `HiddenCard` (singleton enum).
+**GameBuilder** — Manages the lobby (2–6 players) and builds the `Game`. Players are identified by display name only (duplicates rejected); there is no player id yet (TODO for auth/db). `startGame()` builds the deck and player list, constructs the `Game` in `INITIALIZING`, then calls `Game.init()`, which removes the starting cards (1 hidden, or 3 for a 2-player game), deals 1 card to each player, and transitions to `AWAITING_DRAW`. Hardcoded to 5 tokens to win and a placeholder 6-card `Deck.testDeck()` — this is in-progress work.
 
-**Player Identity** — `PlayerId` wraps both an internal `int` id and a `UUID` derived from the player's name. `PlayerIdManager` is a singleton that manages the global mapping. Players are identified externally by UUID string.
-
-**GameBuilder** — Builder that manages the lobby (2–6 players) and initializes a `Game`. Calls `startGame()` to transition from lobby → active game. Hardcoded to 5 tokens to win and a minimal deck (2 Priests + 1 Princess) — this is in-progress work.
+**GameEngine** — Validates and executes player actions (`GameAction` records with an `Action` enum: `DRAW_CARD`, `PLAY_CARD`). A state→action map defines which action is legal in each state. `drawCard` is implemented (`AWAITING_DRAW` → `AWAITING_PLAY`); `validatePlayCard` is partial; `playCard` is a stub.
 
 **GameService** — Spring `@Service` that holds a single `GameBuilder` and (once started) a single active `Game`. Not thread-safe (known TODO in source).
 
@@ -67,9 +65,38 @@ Base path: `/game`
 | POST | `/add` | Add player to lobby |
 | POST | `/remove` | Remove player from lobby |
 | POST | `/start` | Start game |
-| GET | `/{playerId}` | Get game view for player |
-| POST | `/action` | Play a card (incomplete) |
+
+There is no endpoint yet for viewing game state or submitting in-game actions.
 
 ### In-Progress Areas
 
-Card effect resolution is unimplemented — `AwaitingEffectResolution` and the `/action` endpoint exist as stubs. The deck initialization in `GameBuilder` is placeholder (3 cards). Multiple TODOs exist for: random player order, event logging, race conditions in `GameService`, and supporting duplicate player names.
+- Card effect resolution: the `game/logic` package (`CardLogic`, `CardLogicLookup`, `PriestLogic`, `SpyLogic`) and the `PlayCardResult`/`CardData` models are empty stubs; `GameEngine.playCard` returns null.
+- `Deck.testDeck()` is a placeholder 6-card deck.
+- TODOs in source: shuffle player order at game start, map player count → tokens to win, race condition in `GameService.startGame`, per-game ids in the controller.
+
+### Milestones
+
+High-level plan; the detailed plan and design-decision log live in the maintainer's notes. Status as of 2026-07-01 — update this table when a milestone completes.
+
+| # | Milestone                                                                          | Status |
+|---|------------------------------------------------------------------------------------|--------|
+| 0 | Cleanup of existing code                                                           | Done |
+| 1 | Minimal `GameEngine` (`GameAction`, empty validate/play stubs)                     | Done |
+| 2 | Player draws a card (`drawCard` in `Game`, start end-to-end test suite)            | **Current** |
+| 3 | Implement 2 cards: Priest, Spy (`PriestLogic`, `SpyLogic`)                         | |
+| 4 | Player plays a card (`validateCard`, state checks, `discardCard`)                  | |
+| 5 | Card effects (Priest reveals seen card; Spy sets spy token)                        | |
+| 6 | Ending a turn (`endTurn`, advance to next player; simulate a Priest/Spy-only game) | |
+| 7 | Player loses round                                                                 | |
+| 8 | Handmaid (immunity) + Baron (compare hands, lower card loses)          <br/>       | |
+| 9 | End of round (empty deck / one player left; award tokens)                          | |
+| 10 | Princess + Guard                                                                   | |
+| 11 | End of game (token count vs. tokens to win)                                        | |
+| 12 | Playing from localhost (controller endpoints, per-move logging)                    | |
+| 13 | Game/player/card views                                                             | |
+| 14 | 2-player games with information hiding                                             | |
+| 15 | Event log                                                                          | |
+| 16 | Advanced cards 1: King, Countess                                                   | |
+| 17 | Advanced cards 2: Prince, Chancellor                                               | |
+| 18 | `playerId` & authentication                                                        | |
+| 19 | Database (persisting `Game`)                                                       | |
