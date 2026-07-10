@@ -41,7 +41,7 @@ public class Player {
 
     @Getter
     @Setter
-    private boolean hasPlayedSpyThisRound;
+    private boolean playedSpyThisRound;
 
     /**
      * Player's discarded hands in order (first = oldest discarded)
