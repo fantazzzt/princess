@@ -34,6 +34,7 @@ public class GameEngineTest {
 
     private static final int NUM_TOKENS_TO_WIN = 5;
     private static final Card PRIEST_CARD = new Card(PRIEST);
+    private static final Card SPY_CARD = new Card(SPY);
 
     private final GameEngine engine = new GameEngine();
 
@@ -115,10 +116,13 @@ public class GameEngineTest {
 
     @Test
     public void validatePlayCard_passesForCurrentPlayerInAwaitingPlay() {
+        // Spy is the only card with wired logic; it must be in hand and played
+        // with no target/guess for validation to pass.
         Player alice = new Player("alice");
+        alice.addCardToHand(SPY_CARD);
         Player bob = new Player("bob");
         Game game = gameWith(AWAITING_PLAY, 0, List.of(alice, bob));
-        GameAction action = new GameAction(PLAY_CARD, PRIEST_CARD, "bob", null);
+        GameAction action = new GameAction(PLAY_CARD, SPY_CARD, null, null);
 
         engine.validatePlayCard(game, alice, action);
     }
@@ -134,6 +138,13 @@ public class GameEngineTest {
         // validatePlayCard is unreachable behind it).
         GameAction missingAction = new GameAction(null, PRIEST_CARD,"bob",null);
         GameAction draw = new GameAction(DRAW_CARD, null, null, null);
+        // Current player, right state, but the played card isn't in their hand.
+        GameAction playSpy = new GameAction(PLAY_CARD, SPY_CARD, null, null);
+        // Current player holds a Spy but plays it against its own rules (Spy
+        // takes no target), so its CardLogic rejects the play.
+        Player spyHolder = new Player("spyHolder");
+        spyHolder.addCardToHand(SPY_CARD);
+        GameAction spyWithTarget = new GameAction(PLAY_CARD, SPY_CARD, "bob", null);
 
         return Stream.of(
                 arguments("state AWAITING_DRAW is rejected",
@@ -151,7 +162,12 @@ public class GameEngineTest {
                 arguments("missing action is rejected",
                         gameWith(AWAITING_PLAY, 0, players), alice, missingAction, "AwaitingPlay"),
                 arguments("draw action is rejected",
-                        gameWith(AWAITING_PLAY, 0, players), alice, draw, "AwaitingPlay"));
+                        gameWith(AWAITING_PLAY, 0, players), alice, draw, "AwaitingPlay"),
+                arguments("card not in the player's hand is rejected",
+                        gameWith(AWAITING_PLAY, 0, players), alice, playSpy, "hand"),
+                arguments("card played against its own rules is rejected",
+                        gameWith(AWAITING_PLAY, 0, List.of(spyHolder, bob)),
+                        spyHolder, spyWithTarget, "not valid"));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -166,5 +182,42 @@ public class GameEngineTest {
         assertTrue(ex.getMessage().contains(expectedMessage),
                 "expected message containing '" + expectedMessage
                         + "' but got: " + ex.getMessage());
+    }
+
+    @Test
+    public void playCard_discardsCardAppliesEffectAndAwaitsEndTurn() {
+        Player alice = new Player("alice");
+        alice.addCardToHand(SPY_CARD);
+        Player bob = new Player("bob");
+        Game game = gameWith(AWAITING_PLAY, 0, List.of(alice, bob));
+        GameAction action = new GameAction(PLAY_CARD, SPY_CARD, null, null);
+
+        engine.playCard(game, alice, action);
+
+        // Card left the hand for the discard pile...
+        assertEquals(List.of(), alice.getHand());
+        assertEquals(List.of(SPY_CARD), alice.getDiscardedCards());
+        // ...the Spy effect ran...
+        assertTrue(alice.isPlayedSpyThisRound());
+        // ...and the turn is ready to end.
+        assertEquals(AWAITING_END_TURN, game.getGameState());
+    }
+
+    @Test
+    public void playCard_throwsWhenCardNotInHand() {
+        // playCard guards its own discard, so a caller that skips
+        // validatePlayCard still can't discard a card the player doesn't hold.
+        Player alice = new Player("alice");
+        Player bob = new Player("bob");
+        Game game = gameWith(AWAITING_PLAY, 0, List.of(alice, bob));
+        GameAction action = new GameAction(PLAY_CARD, SPY_CARD, null, null);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> engine.playCard(game, alice, action));
+
+        assertTrue(ex.getMessage().contains("not in hand"),
+                "expected message containing 'not in hand' but got: "
+                        + ex.getMessage());
+        assertEquals(AWAITING_PLAY, game.getGameState()); // state unchanged
     }
 }

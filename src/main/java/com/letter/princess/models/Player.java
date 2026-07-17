@@ -87,7 +87,13 @@ public class Player {
         return card;
     }
 
-    // TODO: add test
+    /**
+     * Add a card to the player's discard pile (appended, so oldest-first).
+     */
+    public void addDiscardedCard(Card card) {
+        this.discardedCards.add(card);
+    }
+
     public List<Card> getDiscardedCards() {
         return new ArrayList<>(discardedCards);
     }

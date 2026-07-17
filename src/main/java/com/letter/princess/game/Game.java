@@ -94,4 +94,15 @@ public class Game {
         player.addCardToHand(drawnCard);
         return drawnCard;
     }
+
+    /**
+     * Discard the current card
+     * @param player Player discarding card (may not be current active player)
+     * @param card Card (must be in player's hand)
+     */
+    public void discardCard(Player player, Card card) {
+        List<Card> playerHand = player.getHand();
+        playerHand.remove(card);
+        player.addDiscardedCard(card);
+    }
 }

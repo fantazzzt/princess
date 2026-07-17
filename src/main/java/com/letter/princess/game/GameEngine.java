@@ -1,5 +1,7 @@
 package com.letter.princess.game;
 
+import com.letter.princess.game.logic.CardLogic;
+import com.letter.princess.game.logic.CardLogicLookup;
 import com.letter.princess.game.state.GameState;
 import com.letter.princess.models.Action;
 import com.letter.princess.models.Card;
@@ -12,9 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.letter.princess.game.state.AwaitingDraw.AWAITING_DRAW;
+import static com.letter.princess.game.state.AwaitingEndTurn.AWAITING_END_TURN;
 import static com.letter.princess.game.state.AwaitingPlay.AWAITING_PLAY;
 import static com.letter.princess.models.Action.DRAW_CARD;
 import static com.letter.princess.models.Action.PLAY_CARD;
+import static com.letter.princess.models.Role.PRINCESS;
 
 /**
  * Executes game actions, including validation and applying card rules
@@ -84,11 +88,51 @@ public class GameEngine {
             throw new IllegalArgumentException("Player action must be to play" +
                     " card");
         }
-        // TODO: check that card is valid to play
+
+        Card cardToPlay = action.card();
+        if (!player.getHand().contains(cardToPlay)) {
+            throw new IllegalArgumentException("Player's hand doesn't contain" +
+                    " this card");
+        }
+
+        // Check card-specific rules
+        CardLogic cardLogic = CardLogicLookup.getLogicForCard(cardToPlay);
+        if (!cardLogic.isValidPlayCardAction(game, player, action)) {
+            throw new IllegalArgumentException("Card is not valid to play");
+        }
     }
 
-    public PlayCardResult playCard(Game game, Player player,
+    /**
+     * Execute the play card action
+     */
+    public void playCard(Game game, Player player,
                                    GameAction action) {
-        return null;
+        Card card = action.card();
+        CardLogic cardLogic = CardLogicLookup.getLogicForCard(card);
+        // 0. (later) TODO: add to EventLog
+        // 1. discard card - TODO: check if player out
+        boolean isPlayerInGame = discardCard(game, player, card);
+        // 2. apply card rule
+        if (isPlayerInGame) {
+            cardLogic.apply(game, player, action);
+            // 4. TODO check for pending effects (Chancellor)
+            // 5. TODO check if round/game is over
+            game.setGameState(AWAITING_END_TURN);
+        }
+        // TODO: else, handle player exit from game
+    }
+
+    /**
+     * Discard card from the player's hand and check for Princess (todo)
+     * @return true if player still in game
+     */
+    private boolean discardCard(Game game, Player player, Card card) {
+        if (!player.getHand().contains(card)) {
+            throw new IllegalStateException("Attempting to discard card not " +
+                    "in hand");
+        }
+        game.discardCard(player, card);
+        // TODO: check for princess and handle
+        return true;
     }
 }

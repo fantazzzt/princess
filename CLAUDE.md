@@ -52,7 +52,7 @@ Models (Player, Card, Deck, Role, Action, GameAction)
 
 **GameBuilder** — Manages the lobby (2–6 players) and builds the `Game`. Players are identified by display name only (duplicates rejected); there is no player id yet (TODO for auth/db). `startGame()` builds the deck and player list, constructs the `Game` in `INITIALIZING`, then calls `Game.init()`, which removes the starting cards (1 hidden, or 3 for a 2-player game), deals 1 card to each player, and transitions to `AWAITING_DRAW`. A package-private `startGameWithDeck(Deck)` runs the *same* flow over a caller-supplied deck (used in its given order, no shuffle) so scenario tests can start a real game from a known deck without reimplementing the start sequence. Hardcoded to 5 tokens to win and a placeholder 6-card `Deck.testDeck()` — this is in-progress work.
 
-**GameEngine** — Validates and executes player actions (`GameAction` records with an `Action` enum: `DRAW_CARD`, `PLAY_CARD`). A state→action map defines which action is legal in each state. `drawCard` is implemented (`AWAITING_DRAW` → `AWAITING_PLAY`); `validatePlayCard` is partial; `playCard` is a stub.
+**GameEngine** — Validates and executes player actions (`GameAction` records with an `Action` enum: `DRAW_CARD`, `PLAY_CARD`). A state→action map defines which action is legal in each state. `drawCard` (`AWAITING_DRAW` → `AWAITING_PLAY`), `validatePlayCard` (turn + state + card-in-hand + per-card-rule checks), and `playCard` (discard the card, apply its `CardLogic`, → `AWAITING_END_TURN`) are all implemented. Play dispatches through `CardLogicLookup`, so only Spy is playable so far.
 
 **GameService** — Spring `@Service` that holds a single `GameBuilder` and (once started) a single active `Game`. Not thread-safe (known TODO in source).
 
@@ -71,14 +71,14 @@ There is no endpoint yet for viewing game state or submitting in-game actions.
 
 ### In-Progress Areas
 
-- Card effect resolution: the `CardLogic` interface (`isValidPlayCardAction` + `apply`), `SpyLogic` (sets the player's played-spy-this-round flag), and `CardLogicLookup` (`Role` → `CardLogic`, currently only SPY) are implemented and unit-tested (`SpyLogicTest`, `CardLogicLookupTest`). `PriestLogic` and the `CardData` model are still empty stubs, and `GameEngine.playCard` still returns null — it does not yet dispatch through `CardLogicLookup` (that lands in M4).
+- Card effect resolution: the `CardLogic` interface (`isValidPlayCardAction` + `apply`), `SpyLogic` (sets the player's played-spy-this-round flag), and `CardLogicLookup` (`Role` → `CardLogic`, currently only SPY) are implemented and unit-tested (`SpyLogicTest`, `CardLogicLookupTest`). `PriestLogic` and the `CardData` model are still empty stubs. `GameEngine.playCard` now dispatches through `CardLogicLookup` — it discards the played card (`Game.discardCard`), applies the card's logic, and transitions to `AWAITING_END_TURN` — but only Spy is wired, so Spy is the only playable card; Priest lands in M5.
 - **Action + event model (designed, not built).** The plan: a single `POST /game/{id}/action` carries a discriminated `GameAction` into one uniform `GameEngine.execute(game, action)`. The response is **action-agnostic** (success + the log's head sequence), *not* a per-card result — the `PlayCardResult` stub is superseded by this. An action's consequences are emitted as **`GameEvent`s** (sealed interface + record per type: `CardPlayed`, `CardRevealed`, …) wrapped in a `LoggedEvent(seq, …)` envelope with a monotonic per-game sequence, appended to an `EventLog` and read by cursor (`?after=seq`). Clients render the sequence as ordered beats (progressive display); polling first, server-push (SSE) later. Minimal `GameEvent`/`EventLog` lands in M5. (Full rationale in the maintainer's notes.)
 - `Deck.testDeck()` is a placeholder 6-card deck; `GameBuilder.startGameWithDeck(Deck)` injects a fixed deck for deterministic scenario tests.
 - TODOs in source: shuffle deck + player order at game start, map player count → tokens to win, race condition in `GameService.startGame`, per-game ids in the controller.
 
 ### Milestones
 
-High-level plan mirrored from the maintainer's notes (`coding/Princess notes.md`), which hold the detailed plan and design-decision log and are the source of truth. Status as of 2026-07-09 — update this table when a milestone completes.
+High-level plan mirrored from the maintainer's notes (`coding/Princess notes.md`), which hold the detailed plan and design-decision log and are the source of truth. Status as of 2026-07-16 — update this table when a milestone completes.
 
 | # | Milestone                                                                          | Status |
 |---|------------------------------------------------------------------------------------|--------|
@@ -86,8 +86,8 @@ High-level plan mirrored from the maintainer's notes (`coding/Princess notes.md`
 | 1 | Minimal `GameEngine` (`GameAction`, empty validate/play stubs)                     | Done |
 | 2 | Player draws a card (`drawCard` in `Game`/`GameEngine`, scenario test suite)       | Done |
 | 3 | First card: Spy (`CardLogic` interface, `SpyLogic` sets spy token)                 | Done |
-| 4 | Player plays a card (`playCard`, `discardCard`, scenario test)                     | **Current** |
-| 5 | Card effect + event log: Priest + minimal `GameEvent`/`EventLog` (Priest reveals target's card; actions emit events; valid-target check) | |
+| 4 | Player plays a card (`playCard`, `discardCard`, scenario test)                     | Done |
+| 5 | Card effect + event log: Priest + minimal `GameEvent`/`EventLog` (Priest reveals target's card; actions emit events; valid-target check) | **Current** |
 | 6 | Ending a turn (`endTurn`, advance to next active player; simulate a Priest/Spy-only game) | |
 | 7 | Player loses round                                                                 | |
 | 8 | Handmaid (immunity) + Baron (compare hands, lower card loses)                      | |

@@ -136,6 +136,50 @@ public class GameTest {
         assertThrows(NoSuchElementException.class, () -> game.drawCard(alice));
     }
 
+    @Test
+    public void discardCard_removesFromHandAndAddsToDiscardPile() {
+        Player alice = new Player("alice");
+        alice.addCardToHand(SPY_1);
+        Game game = newGame(List.of(alice, new Player("bob")),
+                new Deck(List.of()), new ArrayList<>(), AWAITING_PLAY);
+
+        game.discardCard(alice, SPY_1);
+
+        assertEquals(List.of(), alice.getHand());
+        assertEquals(List.of(SPY_1), alice.getDiscardedCards());
+    }
+
+    @Test
+    public void discardCard_leavesTheOtherCardInHand() {
+        // On your turn you hold two cards; discarding one leaves exactly the
+        // other (roles differ so equality can tell them apart).
+        Player alice = new Player("alice");
+        alice.addCardToHand(PRIEST_1);
+        alice.addCardToHand(SPY_1);
+        Game game = newGame(List.of(alice, new Player("bob")),
+                new Deck(List.of()), new ArrayList<>(), AWAITING_PLAY);
+
+        game.discardCard(alice, PRIEST_1);
+
+        assertEquals(List.of(SPY_1), alice.getHand());
+        assertEquals(List.of(PRIEST_1), alice.getDiscardedCards());
+    }
+
+    @Test
+    public void discardCard_appendsToDiscardPileOldestFirst() {
+        Player alice = new Player("alice");
+        alice.addCardToHand(PRIEST_1);
+        alice.addCardToHand(SPY_1);
+        Game game = newGame(List.of(alice, new Player("bob")),
+                new Deck(List.of()), new ArrayList<>(), AWAITING_PLAY);
+
+        game.discardCard(alice, PRIEST_1);
+        game.discardCard(alice, SPY_1);
+
+        assertEquals(List.of(PRIEST_1, SPY_1), alice.getDiscardedCards());
+        assertEquals(List.of(), alice.getHand());
+    }
+
     static Stream<Arguments> isDeckEmptyCases() {
         return Stream.of(
                 arguments("empty deck", List.<Card>of(), true),
